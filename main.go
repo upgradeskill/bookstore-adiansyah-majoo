@@ -34,7 +34,7 @@ func getBooks(c echo.Context) error {
 }
 
 // use to get specific books
-// params: id
+// params: id string
 // return: json
 func getBook(c echo.Context) error {
 	id := c.Param("id")
@@ -50,6 +50,24 @@ func getBook(c echo.Context) error {
 	return c.JSON(http.StatusOK, book)
 }
 
+// use to create book
+// params: Book
+// return: json
+func createBook(c echo.Context) error {
+	book := new(Book)
+	if err := c.Bind(book); err != nil {
+		return err
+	}
+
+	db, err := gorm.Open(mysql.Open("web_diy:Bubgum123!@/pokemon?charset=utf8mb4&parseTime=True&loc=Local"), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
+
+	db.Create(&book)
+	return c.JSON(http.StatusCreated, "success")
+}
+
 func main() {
 	e := echo.New()
 
@@ -59,6 +77,7 @@ func main() {
 
 	e.GET("/books", getBooks)
 	e.GET("/books/:id", getBook)
+	e.POST("/books", createBook)
 
 	e.Logger.Fatal(e.Start(":3000"))
 }
