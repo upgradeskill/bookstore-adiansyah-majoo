@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -18,20 +19,28 @@ type Book struct {
 	UpdatedAt time.Time `json:"updated_at" xml:"updated_at" form:"updated_at" query:"updated_at"`
 }
 
+// use to get all books
+// params: echo.Context
+// return: json
 func getBooks(c echo.Context) error {
-	return c.String(http.StatusOK, "ud")
-}
-
-func main() {
 	db, err := gorm.Open(mysql.Open("web_diy:Bubgum123!@/pokemon?charset=utf8mb4&parseTime=True&loc=Local"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
+
+	var books []Book
+	db.Find(&books)
+	fmt.Println("{}", books)
+
+	return c.JSON(http.StatusOK, books)
+}
+
+func main() {
 	e := echo.New()
 
 	// Add dummy data
-	// db.Create(&Book{Title: "Memandang Bulan", Author: "Prof. A", Price: 100})
-	// db.Create(&Book{Title: "Memandang Bintang", Author: "Prof. B", Price: 150})
+	// env.db.Create(&Book{Title: "Memandang Bulan", Author: "Prof. A", Price: 100})
+	// env.db.Create(&Book{Title: "Memandang Bintang", Author: "Prof. B", Price: 150})
 
 	e.GET("/books", getBooks)
 
