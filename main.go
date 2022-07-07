@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -20,7 +19,7 @@ type Book struct {
 }
 
 // use to get all books
-// params: echo.Context
+// params:
 // return: json
 func getBooks(c echo.Context) error {
 	db, err := gorm.Open(mysql.Open("web_diy:Bubgum123!@/pokemon?charset=utf8mb4&parseTime=True&loc=Local"), &gorm.Config{})
@@ -30,9 +29,25 @@ func getBooks(c echo.Context) error {
 
 	var books []Book
 	db.Find(&books)
-	fmt.Println("{}", books)
 
 	return c.JSON(http.StatusOK, books)
+}
+
+// use to get specific books
+// params: id
+// return: json
+func getBook(c echo.Context) error {
+	id := c.Param("id")
+
+	db, err := gorm.Open(mysql.Open("web_diy:Bubgum123!@/pokemon?charset=utf8mb4&parseTime=True&loc=Local"), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
+
+	var book Book
+	db.First(&book, id)
+
+	return c.JSON(http.StatusOK, book)
 }
 
 func main() {
@@ -43,6 +58,7 @@ func main() {
 	// env.db.Create(&Book{Title: "Memandang Bintang", Author: "Prof. B", Price: 150})
 
 	e.GET("/books", getBooks)
+	e.GET("/books/:id", getBook)
 
 	e.Logger.Fatal(e.Start(":3000"))
 }
