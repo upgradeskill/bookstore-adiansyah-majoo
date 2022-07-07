@@ -94,6 +94,24 @@ func updateBook(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, "success")
 }
+
+// use to update book
+// params: id, Book
+// return: json
+func deleteBook(c echo.Context) error {
+	id := c.Param("id")
+
+	db, err := gorm.Open(mysql.Open("web_diy:Bubgum123!@/pokemon?charset=utf8mb4&parseTime=True&loc=Local"), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
+
+	var book Book
+	db.Delete(&book, id)
+
+	return c.JSON(http.StatusOK, "success")
+}
+
 func main() {
 	e := echo.New()
 
@@ -105,6 +123,7 @@ func main() {
 	e.GET("/books/:id", getBook)
 	e.POST("/books", createBook)
 	e.PUT("/books/:id", updateBook)
+	e.DELETE("/books/:id", deleteBook)
 
 	e.Logger.Fatal(e.Start(":3000"))
 }
